@@ -1,0 +1,20 @@
+{
+    "name": "buildsecurity/symfony-opa",
+    "description": "Symfony middleware that adds Open Policy Agent authorization to incoming requests.",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Yash Tewari",
+            "email": "yashtewari1996@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "BuildSecurity\\OpenPolicyAgentBundle\\": "src/"
+        }
+    }
+}
