@@ -3,7 +3,7 @@
 namespace BuildSecurity\OpenPolicyAgentBundle;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpFoundation\HeaderUtils;
@@ -31,8 +31,6 @@ class Authorize
     }
 }
 
-// TODO(yashtewari): Receive log-level and uncomment logs.
-
 /**
  * OpenPolicyAgent implements an event subscriber and registers it.
  * This listener receives events for every incoming request after
@@ -46,7 +44,20 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
 
     public function __construct($pdp_config, HttpClientInterface $client)
     {
-        // TODO(yashtewari): Validate configuration values.
+        foreach (array(
+            'port',
+            'hostname',
+            'policy.path',
+            'readTimeout.milliseconds',
+            'connectionTimeout.milliseconds',
+            'retry.maxAttempts',
+            'retry.backoff.milliseconds',
+        ) as $config_key) {
+            if (!isset($config_key)) {
+                throw new RuntimeException('Invalid Policy Decision Point configuration');
+            }
+        }
+
         $this->pdp_config = $pdp_config;
 
         $this->client = new RetryableHttpClient(
@@ -70,10 +81,8 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
     }
 
     // onKernelController is the registered listener method.
-    public function onKernelController(ControllerEvent $event)
+    public function onKernelController(KernelEvent $event)
     {
-        // $this->logger->info('OPA Port -- {port}', array('port' => $this->pdp_config['port']));
-
         $controller = $event->getController();
 
         // When a controller class defines multiple action methods, the controller
@@ -88,8 +97,6 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
             $method = $obj->getMethods()[0];
         }
 
-        // $this->logger->info('Controller method {name} -- {attr}', array('name' => $method->getName(), 'attr' => $method->getAttributes()[0]->getArguments()[0]));
-
         // Check if the received controller method has the Authorize attribute.
         $attribute = $method->getAttributes(
             Authorize::class,
@@ -99,17 +106,6 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
         if ($attribute == null) {
             return;
         }
-
-        // TODO(yashtewari): Every failure after this point should result in DENY.
-
-        // $this->logger->info('Method name {name}', array('name' => serialize($method->name)));
-        // $this->logger->info(
-        //     'Attribute {attr} with args {args}',
-        //     array(
-        //         'attr' => serialize($attribute->getName()),
-        //         'args' => serialize($attribute->getArguments()),
-        //     ),
-        // );
         
         if (!$this->authorize($event, $attribute->getArguments())) {
             throw new AccessDeniedHttpException('OPA Authz: Deny');
@@ -135,16 +131,8 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
             ),
         );
 
-        // $this->logger->info(
-        //     'OPA payload: {payload}',
-        //     array(
-        //         'payload' => serialize($payload),
-        //     )
-        // );
-
         $response = $this->client->request(
             'POST',
-            // TODO(yashtewari): Stronger URL construction.
             $this->pdp_config['hostname'].':'.$this->pdp_config['port'].'/v1/data'.$this->pdp_config['policy.path'],
             array(
                 'json' => $payload,
@@ -152,7 +140,6 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
             ),
         );
 
-        // TODO(yashtewari): Handle unexpected responses.
         return ($response->toArray()['result']['allow'] == true);
     }
 
