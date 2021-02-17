@@ -1,0 +1,40 @@
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+    # Policy Decision Point (PDP) configuration.
+    pdp.port: 8180
+    pdp.hostname: http://localhost
+    pdp.policy.path: /php
+    pdp.readTimeout.milliseconds: 5000
+    pdp.connectionTimeout.milliseconds: 5000
+    pdp.retry.maxAttempts: 2
+    pdp.retry.backoff.milliseconds: 250
+    
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+            - '../src/Tests/'
+    
+    # Make the PDP configuration to the OpenPolicyAgent service.
+    BuildSecurity\OpenPolicyAgentBundle\OpenPolicyAgent:
+        arguments:
+            $pdp_config:
+                port: '%env(default:pdp.port:PDP_PORT)%'
+                hostname: '%env(default:pdp.hostname:PDP_HOSTNAME)%'
+                policy.path: '%env(default:pdp.policy.path:PDP_POLICY_PATH)%'
+                readTimeout.milliseconds: '%pdp.readTimeout.milliseconds%'
+                connectionTimeout.milliseconds: '%pdp.connectionTimeout.milliseconds%'
+                retry.maxAttempts: '%pdp.retry.maxAttempts%'
+                retry.backoff.milliseconds: '%pdp.retry.backoff.milliseconds%'

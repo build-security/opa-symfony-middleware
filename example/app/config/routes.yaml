@@ -1,0 +1,7 @@
+app_lucky_number:
+    path: /lucky/number
+    controller: App\Controller\Controller::randomNumber
+
+app_some_number:
+    path: /number
+    controller: App\Controller\Controller::constantNumber
