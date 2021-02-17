@@ -116,13 +116,15 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
     private function authorize($event, $resources): bool {
         $request = $event->getRequest();
 
+        
+
         $payload = array(
             'input' => array(
                 'request' => array(
                     'headers' => $request->headers->all(),
                     'method' => $request->getMethod(),
                     'path' => $request->getPathInfo(),
-                    'query' => HeaderUtils::parseQuery($request->getQueryString()),
+                    'query' => HeaderUtils::parseQuery($request->getQueryString() ?? ''),
                     'scheme' => $request->getScheme(),
                 ),
                 'resources' => array(
