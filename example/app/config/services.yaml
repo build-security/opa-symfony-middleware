@@ -31,12 +31,10 @@ services:
     BuildSecurity\OpenPolicyAgentBundle\OpenPolicyAgent:
         arguments:
             $pdp_config:
-                port: '%pdp.port%'
-                hostname: '%pdp.hostname%'
-                policy.path: '%pdp.policy.path%'
+                port: '%env(default:pdp.port:PDP_PORT)%'
+                hostname: '%env(default:pdp.hostname:PDP_HOSTNAME)%'
+                policy.path: '%env(default:pdp.policy.path:PDP_POLICY_PATH)%'
                 readTimeout.milliseconds: '%pdp.readTimeout.milliseconds%'
                 connectionTimeout.milliseconds: '%pdp.connectionTimeout.milliseconds%'
                 retry.maxAttempts: '%pdp.retry.maxAttempts%'
                 retry.backoff.milliseconds: '%pdp.retry.backoff.milliseconds%'
-        tags:
-            - {name: kernel.event_subscriber}
