@@ -2,9 +2,9 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     # Policy Decision Point (PDP) configuration.
-    pdp.port: 8180
+    pdp.port: 8181
     pdp.hostname: http://localhost
-    pdp.policy.path: /php
+    pdp.policy.path: /authorize
     pdp.readTimeout.milliseconds: 5000
     pdp.connectionTimeout.milliseconds: 5000
     pdp.retry.maxAttempts: 2

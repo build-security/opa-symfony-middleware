@@ -1,7 +1,24 @@
-app_lucky_number:
-    path: /lucky/number
-    controller: App\Controller\Controller::randomNumber
+app_view_blog:
+    path: /blog/{user}/{blog_slug}
+    controller: App\Controller\Controller::viewBlog
+    methods: GET
 
-app_some_number:
-    path: /number
-    controller: App\Controller\Controller::constantNumber
+app_create_blog:
+    path: /blog/{user}/{blog_slug}
+    controller: App\Controller\Controller::createBlog
+    methods: POST
+
+app_edit_blog:
+    path: /blog/{user}/{blog_slug}
+    controller: App\Controller\Controller::editBlog
+    methods: PUT
+
+app_delete_blog:
+    path: /blog/{user}/{blog_slug}
+    controller: App\Controller\Controller::deleteBlog
+    methods: DELETE
+
+app_view_admin_console:
+    path: /admin/console
+    controller: App\Controller\Controller::viewAdminConsole
+    methods: GET
