@@ -128,6 +128,7 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
                     'scheme' => $request->getScheme(),
                 ),
                 'resources' => array(
+                    'attributes' => $request->attributes->get('_route_params'),
                     'requirements' => $resources,
                 ),
             ),
