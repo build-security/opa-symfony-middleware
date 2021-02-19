@@ -4,7 +4,7 @@ parameters:
     # Policy Decision Point (PDP) configuration.
     pdp.port: 8181
     pdp.hostname: http://localhost
-    pdp.policy.path: /authorize
+    pdp.policy.path: /symfony/authz
     pdp.readTimeout.milliseconds: 5000
     pdp.connectionTimeout.milliseconds: 5000
     pdp.retry.maxAttempts: 2

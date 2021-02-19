@@ -1,0 +1,37 @@
+{
+    "roles": {
+        "admin": {
+            "permissions": [
+                "admin_console.view"
+            ],
+            "sub_roles": ["member", "anyone"]
+        },
+        "member": {
+            "permissions": [
+                "blog.create",
+                "blog.edit",
+                "blog.delete"
+            ],
+            "sub_roles": ["anyone"]
+        },
+        "anyone": {
+            "permissions": [
+                "blog.view"
+            ]
+        }
+    },
+    "users": {
+        "alice": {
+            "id": 1,
+            "role": "admin"
+        },
+        "bob": {
+            "id": 2,
+            "role": "member"
+        },
+        "charlie": {
+            "id": 3,
+            "role": "member"
+        }
+    }
+}
