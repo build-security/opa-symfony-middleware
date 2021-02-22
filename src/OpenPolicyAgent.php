@@ -13,19 +13,24 @@ use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpClient\RetryableHttpClient;
 use Symfony\Component\HttpClient\Retry\GenericRetryStrategy;
 
+use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Annotations\AnnotationRegistry;
+
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerAwareInterface;
 
 /**
- * Authorize attribute to denote controllers that should be
+ * Authorize annotation to denote controllers that should be
  * integrated with the Open Policy Agent authorization middleware.
+ * 
+ * 
+ * @Annotation
  */
-#[Attribute(Attribute::TARGET_METHOD|Attribute::TARGET_FUNCTION)]
 class Authorize
 {
     public array $resources;
 
-    public function __construct(string ...$resources)
+    public function __construct(array $resources = [])
     {
         $this->resources = $resources;
     }
@@ -62,14 +67,19 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
 
         $this->client = new RetryableHttpClient(
             $client,
-            strategy: new GenericRetryStrategy(
+            new GenericRetryStrategy(
+                GenericRetryStrategy::DEFAULT_RETRY_STATUS_CODES,
                 // Retry backoff base.
-                delayMs: $this->pdp_config['retry.backoff.milliseconds'],
+                $this->pdp_config['retry.backoff.milliseconds'],
                 // Retry backoff exponent.
-                multiplier: 2.0,
+                2.0,
             ),
-            maxRetries: $this->pdp_config['retry.maxAttempts'],
+            $this->pdp_config['retry.maxAttempts'],
         );
+
+        AnnotationRegistry::registerLoader('class_exists');
+
+        $this->reader = new AnnotationReader();
     }
 
     // Make the configured logger available.
@@ -98,16 +108,13 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
         }
 
         // Check if the received controller method has the Authorize attribute.
-        $attribute = $method->getAttributes(
-            Authorize::class,
-            \ReflectionAttribute::IS_INSTANCEOF,
-        )[0] ?? null;
+        $annotation = $this->reader->getMethodAnnotation($method, Authorize::class);
 
-        if ($attribute == null) {
+        if ($annotation == null) {
             return;
         }
         
-        if (!$this->authorize($event, $attribute->getArguments())) {
+        if (!$this->authorize($event, $annotation->resources)) {
             throw new AccessDeniedHttpException('OPA Authz: Deny');
         }
     }
