@@ -1,7 +1,7 @@
 # opa-symfony-middleware
 PHP Symfony middleware that adds Open Policy Agent authorization to incoming requests.
 
-This package is built for PHP v8.0 and above and Symfony v4.22 and above.
+This package is built for PHP v7.4 and above and Symfony v4.22 and above.
 
 ## Installation
 
@@ -59,7 +59,9 @@ use BuildSecurity\OpenPolicyAgentBundle\Authorize;
 // will be made available in the input to the OPA request.
 class SomeController
 {
-    #[Authorize('foo', 'bar')]
+    /**
+     * @Authorize({"foo", "bar"})
+     */
     public function some_method(): Response
     {
         return new Response(
