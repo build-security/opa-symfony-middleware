@@ -54,7 +54,6 @@ allow {
   
   # If the user is a member, make sure they are making changes
   # to their own resource.
-  user.role == "member"
   requires_member_permissions
   
   input.request.headers.user[0] == input.resources.attributes.user
@@ -63,5 +62,5 @@ allow {
 allow {
   not any_requirements_not_match
   
-  user.role != "member"
+  not requires_member_permissions
 }
