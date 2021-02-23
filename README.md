@@ -30,17 +30,20 @@ Then register the `OpenPolicyAgent` service, again in `services.yaml`:
 
 ```
 services:
+    # Make the PDP configuration to the OpenPolicyAgent service.
     BuildSecurity\OpenPolicyAgentBundle\OpenPolicyAgent:
         arguments:
             $pdp_config:
-                port: '%pdp.port%'
-                hostname: '%pdp.hostname%'
-                policy.path: '%pdp.policy.path%'
+                port: '%env(default:pdp.port:PDP_PORT)%'
+                hostname: '%env(default:pdp.hostname:PDP_HOSTNAME)%'
+                policy.path: '%env(default:pdp.policy.path:PDP_POLICY_PATH)%'
                 readTimeout.milliseconds: '%pdp.readTimeout.milliseconds%'
                 connectionTimeout.milliseconds: '%pdp.connectionTimeout.milliseconds%'
                 retry.maxAttempts: '%pdp.retry.maxAttempts%'
                 retry.backoff.milliseconds: '%pdp.retry.backoff.milliseconds%'
 ```
+
+The `PDP_HOSTNAME`, `PDP_PORT` and `PDP_POLICY_PATH` environment variables, when added to your Symfony server environment, will override this service configurtion.
 
 To add the authorization middleware to a controller method, just decorate it with the `Authorize` attribute.
 
