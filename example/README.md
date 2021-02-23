@@ -45,10 +45,12 @@ And that's it! The Symfony middleware can now make authz requests to the PDP, an
 #### Setting up the Symfony server
 
 - [Install Symfony](https://symfony.com/doc/current/setup.html)
+- [Install composer](https://getcomposer.org/download/)
 
-Make sure you're in the `/example` directory of this repository, and run
+Again, make sure you're in the `/example` directory of this repository, and run
 
 ```
+php composer.phar install -d app
 symfony serve --dir=app
 ```
 

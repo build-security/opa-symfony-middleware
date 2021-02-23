@@ -37,13 +37,13 @@ services:
                 port: '%env(default:pdp.port:PDP_PORT)%'
                 hostname: '%env(default:pdp.hostname:PDP_HOSTNAME)%'
                 policy.path: '%env(default:pdp.policy.path:PDP_POLICY_PATH)%'
-                readTimeout.milliseconds: '%pdp.readTimeout.milliseconds%'
-                connectionTimeout.milliseconds: '%pdp.connectionTimeout.milliseconds%'
-                retry.maxAttempts: '%pdp.retry.maxAttempts%'
-                retry.backoff.milliseconds: '%pdp.retry.backoff.milliseconds%'
+                readTimeout.milliseconds: '%env(default:pdp.readTimeout.milliseconds:PDP_READ_TIMEOUT_MS)%'
+                connectionTimeout.milliseconds: '%env(default:pdp.connectionTimeout.milliseconds:PDP_CONNECTION_TIMEOUT_MS)%'
+                retry.maxAttempts: '%env(default:pdp.retry.maxAttempts:PDP_RETRY_MAX_ATTEMPTS)%'
+                retry.backoff.milliseconds: '%env(default:pdp.retry.backoff.milliseconds:PDP_RETRY_BACKOFF_MS)%'
 ```
 
-The `PDP_HOSTNAME`, `PDP_PORT` and `PDP_POLICY_PATH` environment variables, when added to your Symfony server environment, will override this service configurtion.
+The `PDP_HOSTNAME`, `PDP_PORT`, `PDP_POLICY_PATH`, `PDP_READ_TIMEOUT_MS`, `PDP_CONNECTION_TIMEOUT_MS`, `PDP_RETRY_MAX_ATTEMPTS` and `PDP_RETRY_BACKOFF_MS` environment variables, when added to your Symfony server environment, will override this service configurtion.
 
 To add the authorization middleware to a controller method, just decorate it with the `Authorize` attribute.
 
