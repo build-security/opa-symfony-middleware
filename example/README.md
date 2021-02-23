@@ -54,6 +54,8 @@ symfony serve --dir=app
 
 Your app is now running.
 
+Note: if you started the PDP server with non-default address, or loaded policy to a different path from the one given above, you need to either use the `PDP_HOSTNAME`, `PDP_PORT` and `PDP_POLICY_PATH` environment variables as overrides, or change the [service configuration file](./app/config/services.yaml).
+
 #### How it works
 
 Take a look at the [RBAC data](./policy/rbac.json).
