@@ -116,8 +116,6 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
     private function authorize($event, $resources): bool {
         $request = $event->getRequest();
 
-        
-
         $payload = array(
             'input' => array(
                 'request' => array(
@@ -136,7 +134,7 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
 
         $response = $this->client->request(
             'POST',
-            $this->pdp_config['hostname'].':'.$this->pdp_config['port'].'/v1/data'.$this->pdp_config['policy.path'],
+            $this->getPDPEndpoint(),
             array(
                 'json' => $payload,
                 'timeout' => $this->pdp_config['connectionTimeout.milliseconds'],
@@ -144,6 +142,38 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
         );
 
         return ($response->toArray()['result']['allow'] == true);
+    }
+
+    private function getPDPEndpoint(): string {
+        $hostname = $this->pdp_config['hostname'];
+
+        if (strpos($hostname, '://') === false) {
+            $hostname = 'http://'.$hostname;
+        }
+
+        if (substr($hostname, -1) === '/') {
+            $hostname = substr($hostname, 0, -1);
+        }
+
+        $port = $this->pdp_config['port'];
+
+        if (substr($port, 0, 1) !== ':') {
+            $port = ':'.$port;
+        }
+
+        $path = $this->pdp_config['policy.path'];
+
+        if (substr($path, 0, 1) !== '/') {
+            $path = '/'.$path;
+        }
+
+        if (substr($path, 0, 8) !== '/v1/data') {
+            $path = '/v1/data'.$path;
+        }
+
+        $endpoint = \urljoin($hostname.$port, $path);
+
+        return $endpoint;
     }
 
     // getSubscribedEvents registers the listener during compile time.
