@@ -19,7 +19,8 @@
         "symfony/framework-bundle": "5.2.*",
         "symfony/http-client": "5.2.*",
         "symfony/yaml": "5.2.*",
-        "doctrine/annotations": "^1.12"
+        "doctrine/annotations": "^1.12",
+        "busybee/urljoin": "dev-main"
     },
     "autoload": {
         "psr-4": {
