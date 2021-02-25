@@ -115,7 +115,7 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
         }
         
         try {
-            if (!$this->authorize($event, $annotation->resources)) {
+            if (!$this->authorize($event, $annotation->resources['value'])) {
                 throw new AccessDeniedHttpException('OPA Authz: Deny');
             }
         }
