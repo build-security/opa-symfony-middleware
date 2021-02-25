@@ -45,16 +45,43 @@ And that's it! The Symfony middleware can now make authz requests to the PDP, an
 
 #### Setting up the Symfony server
 
-Again, make sure you're in the `/example` directory of this repository, and run
+Again, make sure you're in the `/example` directory of this repository, and build the image:
 
 ```
-docker build -t symfony-mw-example
-docker run symfony-mw-example
+docker build -t symfony-mw-example .
+```
+
+##### Running on Mac or Windows
+
+Since OPA is running on your host machine, app container needs to access your `localhost`. This can be done using the `PDP_HOSTNAME` environment variable, and the `host.docker.internal` DNS name which resolves to your host IP.
+
+```
+docker run \
+  --rm \
+  -p 8000:8000 \
+  -e PDP_HOSTNAME=host.docker.internal \
+  -e PDP_PORT=8181 \
+  -e PDP_POLICY_PATH=/symfony/authz \
+  symfony-mw-example
+```
+
+##### Running on Linux
+
+The `host.docker.internal` option isn't available on Linux, so we'll use host networking instead.
+
+```
+docker run \
+  --rm \
+  --network host \
+  -e PDP_HOSTNAME=localhost \
+  -e PDP_PORT=8181 \
+  -e PDP_POLICY_PATH=/symfony/authz \
+  symfony-mw-example
 ```
 
 Your app is now running.
 
-Note: if you started the PDP server with non-default address, or loaded policy to a different path from the one given above, you need to either use the `PDP_HOSTNAME`, `PDP_PORT` and `PDP_POLICY_PATH` environment variables as overrides, or change the [service configuration file](./app/config/services.yaml).
+Note: if you started the PDP server with non-default address, or loaded policy to a different path from the one given above, you need to either use the `PDP_HOSTNAME`, `PDP_PORT` and `PDP_POLICY_PATH` environment variables as overrides, or change the [service configuration file](./app/config/services.yaml) and rebuild the Docker container.
 
 #### How it works
 
