@@ -14,6 +14,7 @@ The authz policy that we're going to load into the Policy Decision Point (PDP) i
 2. The `member` role is assigned to registered users, who can create, update and delete _their own blogs_, but can only view other's blogs.
 3. The `admin` role is assigned to admins, who can access the admin console, as well as create, update and delete _anyone's blogs_.
 
+For the following steps, please make sure you have the [latest version of Docker](https://docs.docker.com/get-docker/) installed.
 #### Setting up the Policy Decision Point (PDP)
 
 Let's start up the OPA server using Docker on a separate terminal.
@@ -44,14 +45,11 @@ And that's it! The Symfony middleware can now make authz requests to the PDP, an
 
 #### Setting up the Symfony server
 
-- [Install Symfony](https://symfony.com/doc/current/setup.html)
-- [Install composer](https://getcomposer.org/download/)
-
 Again, make sure you're in the `/example` directory of this repository, and run
 
 ```
-php composer.phar install -d app
-symfony serve --dir=app
+docker build -t symfony-mw-example
+docker run symfony-mw-example
 ```
 
 Your app is now running.

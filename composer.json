@@ -6,7 +6,7 @@
     "authors": [
         {
             "name": "Yash Tewari",
-            "email": "yashtewari1996@gmail.com"
+            "email": "yash@build.securty"
         }
     ],
     "require": {
@@ -18,7 +18,8 @@
         "symfony/flex": "^1.3.1",
         "symfony/framework-bundle": "5.2.*",
         "symfony/http-client": "5.2.*",
-        "symfony/yaml": "5.2.*"
+        "symfony/yaml": "5.2.*",
+        "busybee/urljoin": "dev-main"
     },
     "autoload": {
         "psr-4": {
