@@ -120,18 +120,18 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
     // authorize makes the call to the PDP.
     private function authorize($event, $resources): bool {
         $request = $event->getRequest();
-
-        $payload = array(
-            'input' => array(
-                'request' => array(
-                    'headers' => $request->headers->all(),
+    
+        $payload = (object) array(
+            'input' => (object) array(
+                'request' => (object) array(
+                    'headers' => (object) $request->headers->all(),
                     'method' => $request->getMethod(),
                     'path' => $request->getPathInfo(),
-                    'query' => HeaderUtils::parseQuery($request->getQueryString() ?? ''),
+                    'query' => (object) HeaderUtils::parseQuery($request->getQueryString() ?? ''),
                     'scheme' => $request->getScheme(),
                 ),
-                'resources' => array(
-                    'attributes' => $request->attributes->get('_route_params'),
+                'resources' => (object) array(
+                    'attributes' => (object) $request->attributes->get('_route_params'),
                     'requirements' => $resources,
                 ),
             ),
