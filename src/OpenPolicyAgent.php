@@ -2,6 +2,7 @@
 
 namespace BuildSecurity\OpenPolicyAgentBundle;
 
+use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\KernelEvent;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -45,6 +46,8 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
     public function __construct($pdp_config, HttpClientInterface $client)
     {
         foreach (array(
+            'enable',
+            'allowOnFailure',
             'port',
             'hostname',
             'policy.path',
@@ -53,8 +56,8 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
             'retry.maxAttempts',
             'retry.backoff.milliseconds',
         ) as $config_key) {
-            if (!isset($config_key)) {
-                throw new RuntimeException('Invalid Policy Decision Point configuration');
+            if (!isset($pdp_config[$config_key])) {
+                throw new RuntimeException('Invalid Policy Decision Point middleware configuration');
             }
         }
 
@@ -83,6 +86,10 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
     // onKernelController is the registered listener method.
     public function onKernelController(KernelEvent $event)
     {
+        if ($this->pdp_config['enable'] == false) {
+            return;
+        }
+
         $controller = $event->getController();
 
         // When a controller class defines multiple action methods, the controller
@@ -113,7 +120,9 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
             }
         }
         catch (\Exception $e) {
-            throw new AccessDeniedHttpException($e->getMessage(), $e);
+            if ($this->pdp_config['allowOnFailure'] == false) {
+                throw new AccessDeniedHttpException($e->getMessage(), $e);
+            }
         }
     }
 
@@ -126,7 +135,7 @@ class OpenPolicyAgent implements EventSubscriberInterface, LoggerAwareInterface
                 'request' => (object) array(
                     'headers' => (object) $request->headers->all(),
                     'method' => $request->getMethod(),
-                    'path' => $request->getPathInfo(),
+                    'path' => \str_replace('\/', '/', $request->getPathInfo()),
                     'query' => (object) HeaderUtils::parseQuery($request->getQueryString() ?? ''),
                     'scheme' => $request->getScheme(),
                 ),
