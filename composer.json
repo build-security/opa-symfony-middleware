@@ -19,7 +19,9 @@
         "symfony/framework-bundle": "5.2.*",
         "symfony/http-client": "5.2.*",
         "symfony/yaml": "5.2.*",
-        "busybee/urljoin": "dev-main"
+        "busybee/urljoin": "dev-main",
+        "symfony/browser-kit": "5.2.*",
+        "symfony/css-selector": "5.2.*"
     },
     "autoload": {
         "psr-4": {
@@ -31,13 +33,13 @@
             "BuildSecurity\\OpenPolicyAgentBundle\\Tests\\": "tests/"
         }
     },
-    "require-dev": {
-        "symfony/phpunit-bridge": "^5.2"
-    },
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
             "assets:install %PUBLIC_DIR%": "symfony-cmd"
         }
+    },
+    "require-dev": {
+        "symfony/phpunit-bridge": "^5.2"
     }
 }
