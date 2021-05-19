@@ -162,3 +162,11 @@ This is what the input received by the PDP would look like.
     }
 }
 ```
+If everything works well you should receive the following response:
++
+```
+{
+    "decision_id":"ef414180-05bd-4817-9634-7d1537d5a657",
+    "result":true
+}
+```
