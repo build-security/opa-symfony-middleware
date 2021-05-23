@@ -2,8 +2,8 @@
 <p align="center"><img src="Logo-build.png" class="center" alt="build-logo" width="30%"/></p>
 
 ## Abstract
-[build.security](https://docs.build.security/) provides simple development and management of the organization's authorization policy.
-opa-symfony-middleware is a PHP Symfony middleware intended for performing authorizing requests against build.security pdp/[OPA](https://www.openpolicyagent.org/).
+[build.security](https://docs.build.security/) provides simple development and management for your organization's authorization policy.
+opa-symfony-middleware is a PHP Symfony middleware intended for performing authorization requests against build.security PDP(Policy Decision Point)/[OPA](https://www.openpolicyagent.org/).
 
 This package is built for PHP v8.0 and above and Symfony v4.22 and above.
 ## Data Flow
@@ -17,7 +17,9 @@ Before you start we recommend completing the onboarding tutorial.
 ---
 **Important note**
 
-In the following example we used our aws managed pdp instance to ease your first setup, but if you feel comfortable you are recommended to use your own pdp instance instead.
+To simplify the setup process, the following example uses a local [build.security PDP instance](https://docs.build.security/policy-decision-points-pdp/pdp-deployments/standalone-docker-1).
+If you are already familiar with how to run your PDP, You can also run a PDP on you environment (Dev/Prod, etc).
+
 In that case, don't forget to change the **hostname** and the **port** in your code.
 
 ---
@@ -29,8 +31,7 @@ In your Symfony app directory:
 composer require buildsecurity/symfony-opa
 ```
 
-Edit your `services.yaml` file - 
-edit the configuration for OPA:
+Edit your PDP configuration file (`services.yaml`) - 
 This will define how requests should be made to the PDP
 
 ```
@@ -59,8 +60,6 @@ services:
                 retry.maxAttempts: '%env(default:pdp.retry.maxAttempts:PDP_RETRY_MAX_ATTEMPTS)%'
                 retry.backoff.milliseconds: '%env(default:pdp.retry.backoff.milliseconds:PDP_RETRY_BACKOFF_MS)%'
 ```
-
-The PDP_HOSTNAME, PDP_PORT, PDP_POLICY_PATH, PDP_READ_TIMEOUT_MS, PDP_CONNECTION_TIMEOUT_MS, PDP_RETRY_MAX_ATTEMPTS and PDP_RETRY_BACKOFF_MS environment variables, when added to your Symfony server environment, will override this service configurtion.
 ### Mandatory configuration
 
  1. `hostname`: The hostname of the Policy Decision Point (PDP)
