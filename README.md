@@ -1,9 +1,29 @@
 # opa-symfony-middleware
-PHP Symfony middleware that adds Open Policy Agent authorization to incoming requests.
+<p align="center"><img src="Logo-build.png" class="center" alt="build-logo" width="30%"/></p>
+
+## Abstract
+[build.security](https://docs.build.security/) provides simple development and management for your organization's authorization policy.
+opa-symfony-middleware is a PHP Symfony middleware intended for performing authorization requests against build.security PDP(Policy Decision Point)/[OPA](https://www.openpolicyagent.org/).
 
 This package is built for PHP v8.0 and above and Symfony v4.22 and above.
+## Data Flow
+<p align="center"> <img src="Data%20flow.png" alt="drawing" width="60%"/></p>
 
-## Installation
+## Usage
+
+Before you start we recommend completing the onboarding tutorial.
+
+
+---
+**Important note**
+
+To simplify the setup process, the following example uses a local [build.security PDP instance](https://docs.build.security/policy-decision-points-pdp/pdp-deployments/standalone-docker-1).
+If you are already familiar with how to run your PDP, You can also run a PDP on you environment (Dev/Prod, etc).
+
+In that case, don't forget to change the **hostname** and the **port** in your code.
+
+---
+### Simple usage
 
 In your Symfony app directory:
 
@@ -11,23 +31,21 @@ In your Symfony app directory:
 composer require buildsecurity/symfony-opa
 ```
 
-## Usage
-
-Add parameters that define how requests should be made to the Policy Decision Point (PDP) in your `services.yaml` file:
+Edit your PDP configuration file (`services.yaml`) - 
+This will define how requests should be made to the PDP
 
 ```
 parameters:
     pdp.port: 8181
     pdp.hostname: http://localhost
-    pdp.policy.path: /php
+    pdp.policy.path: /authz/allow
     pdp.readTimeout.milliseconds: 5000
     pdp.connectionTimeout.milliseconds: 5000
     pdp.retry.maxAttempts: 2
     pdp.retry.backoff.milliseconds: 250
 ```
 
-Then register the `OpenPolicyAgent` service, again in `services.yaml`:
-
+Register the `OpenPolicyAgent` service in your `services.yaml`
 ```
 services:
     # Make the PDP configuration to the OpenPolicyAgent service.
@@ -42,12 +60,23 @@ services:
                 retry.maxAttempts: '%env(default:pdp.retry.maxAttempts:PDP_RETRY_MAX_ATTEMPTS)%'
                 retry.backoff.milliseconds: '%env(default:pdp.retry.backoff.milliseconds:PDP_RETRY_BACKOFF_MS)%'
 ```
+### Mandatory configuration
 
-The `PDP_HOSTNAME`, `PDP_PORT`, `PDP_POLICY_PATH`, `PDP_READ_TIMEOUT_MS`, `PDP_CONNECTION_TIMEOUT_MS`, `PDP_RETRY_MAX_ATTEMPTS` and `PDP_RETRY_BACKOFF_MS` environment variables, when added to your Symfony server environment, will override this service configurtion.
+ 1. `hostname`: The hostname of the Policy Decision Point (PDP)
+ 2. `port`: The port at which the OPA service is running
+ 3. `policyPath`: Full path to the policy (including the rule) that decides whether requests should be authorized
+   
+The `PDP_HOSTNAME`, `PDP_PORT`, `PDP_POLICY_PATH`, `PDP_READ_TIMEOUT_MS`, `PDP_CONNECTION_TIMEOUT_MS`, `PDP_RETRY_MAX_ATTEMPTS` and `PDP_RETRY_BACKOFF_MS` environment variables, when added to your Symfony server environment, will override this service configuration.
 
-To add the authorization middleware to a controller method, just decorate it with the `Authorize` attribute.
+### Optional configuration
+ 1. `allowOnFailure`: Boolean. "Fail open" mechanism to allow access to the API in case the policy engine is not reachable. **Default is false**.
+ 2. `includeBody`: Boolean. Whether or not to pass the request body to the policy engine. **Default is true**.
+ 3. `includeHeaders`: Boolean. Whether or not to pass the request headers to the policy engine. **Default is true**
+ 4. `timeout`: Boolean. Amount of time to wait before request is abandoned and request is declared as failed. **Default is 1000ms**.
+ 5. `enable`: Boolean. Whether or not to consult with the policy engine for the specific request. **Default is true**
 
 ##### Example
+To add the authorization middleware to a controller method, just decorate it with the `Authorize` attribute.
 ```
 <?php
 namespace App\Controller;
@@ -69,5 +98,74 @@ class SomeController
             '<html><body>Authorized!</body></html>'
         );
     }
+}
+```
+
+For more elaborated example [click here](example/README.md) 
+### PDP Request example
+
+This is what the input received by the PDP would look like.
+
+```
+{
+    "input":{
+        "request":{
+            "headers":{
+                "host":[
+                    "localhost:8000"
+                ],
+                "user-agent":[
+                    "curl\/7.74.0"
+                ],
+                "content-length":[
+                    "0"
+                ],
+                "accept":[
+                    "*\/*"
+                ],
+                "user":[
+                    "charlie"
+                ],
+                "x-forwarded-for":[
+                    "::1"
+                ],
+                "accept-encoding":[
+                    "gzip"
+                ],
+                "content-type":[
+                    ""
+                ],
+                "mod-rewrite":[
+                    "On"
+                ],
+                "x-php-ob-level":[
+                    "1"
+                ]
+            },
+            "method":"POST",
+            "path":"\/blog\/bob\/some-blog",
+            "query":[
+                
+            ],
+            "scheme":"http"
+        },
+        "resources":{
+            "attributes":{
+                "user":"bob",
+                "blog_slug":"some-blog"
+            },
+            "requirements":[
+                "blog.create"
+            ]
+        }
+    }
+}
+```
+If everything works well you should receive the following response:
++
+```
+{
+    "decision_id":"ef414180-05bd-4817-9634-7d1537d5a657",
+    "result":true
 }
 ```
